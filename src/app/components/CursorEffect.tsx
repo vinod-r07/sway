@@ -1,0 +1,44 @@
+"use client";
+import { useEffect } from "react";
+
+export default function CursorEffect() {
+  useEffect(() => {
+    // Detect mobile/touch device
+    const isTouchDevice =
+      typeof window !== "undefined" &&
+      ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+    if (isTouchDevice) return;
+    const cursor = document.createElement("div");
+    cursor.className = "cursor-circle";
+    document.body.appendChild(cursor);
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let circleX = mouseX;
+    let circleY = mouseY;
+    const speed = 0.16; // Lower = more delay
+    let animationFrameId: number | null = null;
+
+    const move = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    };
+
+    function animate() {
+      circleX += (mouseX - circleX) * speed;
+      circleY += (mouseY - circleY) * speed;
+      cursor.style.left = `${circleX}px`;
+      cursor.style.top = `${circleY}px`;
+      animationFrameId = requestAnimationFrame(animate);
+    }
+    window.addEventListener("mousemove", move);
+    animate();
+    return () => {
+      window.removeEventListener("mousemove", move);
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      cursor.remove();
+    };
+  }, []);
+  return null;
+}
